@@ -90,6 +90,7 @@ export default function Welcome() {
     )
 }
 ```
+If you want to return multiple HTML components, you need to ensure it is all wrapped in one tag. Either a simple div, or just use `<></>`, and the wrapper won't be inserted into the HTML but it will allow for multiple HTML elements.
 
 ### Working with HTML Inside React:
 As many keywords are already reserved for JavaScript functionality, there's a few small things to note when writing HTML inside React:
@@ -111,6 +112,8 @@ Then, inside the HTML if you want to reference it, just wrap the module name ins
 ```js
 <img src={Sammy} alt="Sammy image" width={200} height={200} />
 ```
+
+As a rule, when referencing variables as an HTML parameter inside `jsx`, you wrap it in curly brackets instead of quotation marks.
 
 ## Adding CSS
 Create a new directory inside `src/` called `css/`. Inside there create the CSS file `main.css` and add the necessary styling code.
