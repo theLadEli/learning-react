@@ -215,7 +215,7 @@ Now every time `count` is changed, any component referencing it will be rerender
 
 So, for example a simple counter that goes up on button click:
 ```jsx
-export default function counter() {
+export default function Counter() {
   const [count, setCount] = useState(0);
 
   return(
@@ -225,5 +225,128 @@ export default function counter() {
     <button onClick={() => setCount(count+1)}>+</button>
     </>
   )
+}
+```
+
+# Lifecycle
+Every component in React has a lifecycle:
+  1. **Created -** First its initialised and mounted into the component tree
+  2. **Updated -** Next the component might change causing it to rerender
+  3. **Removed -** The component might be removed
+
+## Use Effect
+At the top of a component you can create a hook called `useEffect`, like this:
+```jsx
+function Counter() {
+  useEffect(() => {
+    // code to run
+  },[])
+}
+```
+There are two arguements for `useEffect`, a function as the first arguement, this is the code you want to run. The second arguement is an array for data dependancies to cause the code to run. If left empty, the code will run when the component is first initialised.
+
+If you want the code to run on for example every time a counter updates, you'd add the `count` variable as a dependancy in the array:
+```jsx
+function Counter() {
+  const [count, setCount] = useEffect(0);
+
+  useEffect(() => {
+    // code to run
+  },[count])
+}
+```
+Now every time `count` has its value updated, the code will rerun.
+
+You can not return a value typically with `useEffect`, you use return to specicy logic for when the component is destroyed/unmounted, and it has to be as a function:
+```jsx
+function Counter() {
+
+  useEffect(() => {
+    // code to run
+
+    return () => console.log('Component destroyed')
+  },[])
+}
+```
+
+# Context
+You might want to pass data between components, we use context API for this. You provide data somewhere in the component tree, and then all children can have access to that data.
+
+To do this you first passs the data to the react `createContext()` function:
+```jsx
+const CountContext = createContext(0)
+```
+
+Then you place the context somewhere in the component tree, often at the global level, to provide data that can then be shared to the entire application.
+
+Examples of usage are for things like an authentication state or a theme.
+
+Example:
+```jsx
+const CountContext = createContext(0);
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return(
+    <CountContext.Provider value={count}>
+      <Child />
+    </CountContext.Provider>
+  )
+}
+```
+
+Above we've created a `CountContext`, wrapped the child element in it and set the value of the context to the value of a variable. Now the `<Child />` componenet can access the data like this:
+```jsx
+function Child() {
+  const count = useContext(CountContext)
+  return <div>{count}</div>
+}
+```
+
+And you can even take this levels down like this:
+```jsx
+function Child(){
+  return <GrandChild />
+}
+
+function GrandChild() {
+  const count = useContext(CountContext)
+  return <div>{count}</div>
+}
+```
+
+**Example project using context:**
+```jsx
+import React, { useContext, createContext, useState } from 'react';
+
+const CountContext = createContext();
+
+export function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <CountContext.Provider value={{ count, setCount }}>
+      <h1>Press to increase the count</h1>
+      <Count />
+      <CountButtons />
+    </CountContext.Provider>
+  );
+}
+
+function Count() {
+  const { count } = useContext(CountContext);
+  return <p>{count}</p>;
+}
+
+function CountButtons() {
+  const { count, setCount } = useContext(CountContext);
+
+  return (
+    <>
+      {count > 0 && <button onClick={() => setCount(count - 1)}>-</button>}
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </>
+  );
 }
 ```
